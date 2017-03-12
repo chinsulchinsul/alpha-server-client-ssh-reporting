@@ -9,11 +9,14 @@
         upgrade: no
         update_cache: yes
 
-    - name: Install MySQL
+    - name: Install necessary packages
       apt: name={{ item }} update_cache=no state=present
       with_items:
         - python-mysqldb
         - mysql-server
+        - python-dev 
+        - libmysqlclient-dev
+        - python-pip
 
     - name: Start the MySQL service
       service: 
@@ -36,3 +39,13 @@
         - 127.0.0.1
         - ::1
         - localhost 
+    - name: Installing python MySQL connector
+      pip: name=MySQL-python
+
+    - name : Copying python file to server
+      file: 
+        src: Server.py
+        dest: /usr/local/bin
+        owner: root
+        group: root
+        mode: 0744
