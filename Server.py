@@ -24,14 +24,19 @@ def close_db_connection(cnx):
         print "Error closing db connection %s" %str(err)
         sys.exit(1)
 
-def db_execute(cnx,sql):
+def db_execute(cnx,sql,select=False):
     try:
         print sql
-        cursor = cnx.cursor()
-        response = cursor.execute(sql)
-        cnx.commit()
-        print "Query executed successfully.\n"
-        return response
+        cursor = cnx.cursor(buffered=True)
+        cursor.execute(sql)
+        if select:
+            response = cursor.fetchone()
+            print "Select query executed successfully.\n"
+            return response
+        else:
+            cnx.commit()
+            print "Update or Insert query executed successfully.\n"
+
     except mysql.connector.Error as err:
         print "Error executing query %s" %str(err)
         sys.exit(1)
@@ -54,12 +59,18 @@ def update_database(node_name,attempt_count):
     query = 'CREATE TABLE IF NOT EXISTS %s.%s ( ID int(16) NOT NULL AUTO_INCREMENT, NodeName varchar(255), AttemptCount int, PRIMARY KEY (ID) );' %(db_name, db_table)
     db_execute(connection,query)
 
-#    if insert is True:
-#        print "Inserting data data."
-#        query = 'INSERT INTO %s.%s (NodeName, AttemptCount) VALUES ("%s", 0);' %(db_name, db_table, node_name)
-#        db_execute(connection,query)
-#    else:
+    print "Checking if %s exist in the database" %node_name
+    query = 'SELECT COUNT(*) FROM %s.%s WHERE NodeName = "%s"' %(db_name,db_table,node_name)
+    response = db_execute(connection,query,True)
 
+    if response is None:
+        print "Inserting data data."
+        query = 'INSERT INTO %s.%s (NodeName, AttemptCount) VALUES ("%s", %d);' %(db_name, db_table, node_name,attempt_count)
+        db_execute(connection,query)
+    else:
+        print "Inserting data data."
+        query = 'UPDATE %s.%s SET AttemptCount = AttemptCount+%d WHERE NodeName="%s";' %(db_name, db_table, attempt_count, node_name)
+        db_execute(connection,query)
     print "Closing database connection."
     close_db_connection(connection)    
 
