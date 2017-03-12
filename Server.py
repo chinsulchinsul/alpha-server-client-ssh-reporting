@@ -37,3 +37,5 @@ def main():
     connection = initiate_db_connection(db_user,db_password,db_name,db_host)
 
     create_db_query='CREATE DATABASE IF NOT EXISTS %s' %db_name
+if __name__ == "__main__":
+    main()
