@@ -41,8 +41,11 @@
         - ::1
         - localhost 
     - name: Installing python MySQL connector
-      pip: name=MySQL-python
-
+      pip: 
+        name: "{{ item }}"
+      with_items:
+        - MySQL-python
+        - mysql-connector
     - name: Copying python file to server
       copy: 
         src: ../Server.py 
