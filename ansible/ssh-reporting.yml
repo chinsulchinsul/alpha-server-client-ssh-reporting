@@ -56,3 +56,8 @@
         owner: root
         group: root
         mode: 0755
+    - name: start server
+      shell: /usr/local/bin/Server.py >> /var/log/ListenServer.log 2>&1 &
+      become: true
+      async: 10
+      poll: 0
