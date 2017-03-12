@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import mysql.connector
 
 def initiate_db_connection(user_name, password, database_name, host_name):

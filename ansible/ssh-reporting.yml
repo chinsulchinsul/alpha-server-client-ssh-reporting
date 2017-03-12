@@ -8,6 +8,7 @@
       apt: 
         upgrade: no
         update_cache: yes
+        cache_valid_time: 36000
 
     - name: Install necessary packages
       apt: name={{ item }} update_cache=no state=present
@@ -42,10 +43,13 @@
     - name: Installing python MySQL connector
       pip: name=MySQL-python
 
-    - name : Copying python file to server
+    - name: Copying python file to server
+      copy: 
+        src: ../Server.py 
+        dest: /usr/local/bin/Server.py
+    - name: Making file executable
       file: 
-        src: Server.py
-        dest: /usr/local/bin
+        path: /usr/local/bin/Server.py
         owner: root
         group: root
-        mode: 0744
+        mode: 0755
