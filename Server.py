@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 import mysql.connector
+import socket
+import sys
+import select
 
 def initiate_db_connection(user_name, password, host_name):
     try:
@@ -19,18 +22,21 @@ def close_db_connection(cnx):
         print "Database connection closed successfully.\n"
     except mysql.connector.Error as err:
         print "Error closing db connection %s" %str(err)
-        exit(1)
+        sys.exit(1)
 
 def db_execute(cnx,sql):
     try:
+        print sql
         cursor = cnx.cursor()
-        cursor.execute(sql)
+        response = cursor.execute(sql)
+        cnx.commit()
         print "Query executed successfully.\n"
+        return response
     except mysql.connector.Error as err:
         print "Error executing query %s" %str(err)
-        exit(1)
+        sys.exit(1)
 
-def main():
+def update_database(node_name,attempt_count):
     db_user = 'root'
     db_password = 'strong_password'
     db_name = 'ssh_access_reports'
@@ -45,11 +51,60 @@ def main():
     db_execute(connection,query)
 
     print "Creating table if not existing."
-    query = 'CREATE TABLE IF NOT EXISTS %s.%s ( ID int, NodeName varchar(255), AttemptCount int );' %(db_name,db_table)
+    query = 'CREATE TABLE IF NOT EXISTS %s.%s ( ID int(16) NOT NULL AUTO_INCREMENT, NodeName varchar(255), AttemptCount int, PRIMARY KEY (ID) );' %(db_name, db_table)
     db_execute(connection,query)
 
+#    if insert is True:
+#        print "Inserting data data."
+#        query = 'INSERT INTO %s.%s (NodeName, AttemptCount) VALUES ("%s", 0);' %(db_name, db_table, node_name)
+#        db_execute(connection,query)
+#    else:
+
     print "Closing database connection."
-    close_db_connection(connection)
+    close_db_connection(connection)    
+
+def main():
+    HOST = ''   
+    PORT = 8888 
+ 
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    print 'Socket created'
+ 
+    try:
+        s.bind((HOST, PORT))
+    except socket.error as err:
+        print 'Bind failed. Error Code : ' + str(err[0]) + ' Message ' + err[1]
+        sys.exit()
+     
+    print 'Socket bind complete'
+    s.listen(5)
+
+    print 'Socket now listening'
+ 
+    #print str(dir(s))
+    while 1:
+        try:
+            client, addr = s.accept()
+            ready = select.select([client,],[], [],2)
+            if ready[0]:
+                attempt = int(client.recv(4096))
+                client_ip = addr[0]
+                update_database(client_ip,attempt)
+        except KeyboardInterrupt:
+            print
+            print "Keyboard Interrupt. Exiting."
+            break
+        except socket.error, msg:
+            print "Socket closed %s" % str(msg)
+            break
+    s.close()
+    
+
+
+
+
+
+
 
 if __name__ == "__main__":
     main()
