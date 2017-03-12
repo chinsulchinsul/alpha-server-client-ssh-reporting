@@ -40,24 +40,46 @@
         - 127.0.0.1
         - ::1
         - localhost 
+
     - name: Installing python MySQL connector
       pip: 
         name: "{{ item }}"
       with_items:
         - MySQL-python
         - mysql-connector
+
     - name: Copying python file to server
       copy: 
         src: ../Server.py 
         dest: /usr/local/bin/Server.py
+
     - name: Making file executable
       file: 
         path: /usr/local/bin/Server.py
         owner: root
         group: root
         mode: 0755
-    - name: start server
+
+    - name: Copying python file to server
+      copy: 
+        src: ../Client.py
+        dest: /usr/local/bin/Client.py
+
+    - name: Making file executable
+      file: 
+        path: /usr/local/bin/Client.py
+        owner: root
+        group: root
+        mode: 0755
+
+    - name: starting server
       shell: /usr/local/bin/Server.py >> /var/log/ListenServer.log 2>&1 &
+      become: true
+      async: 10
+      poll: 0
+
+    - name: starting client
+      shell: /usr/local/bin/Client.py >> /var/log/ListenClient.log 2>&1 &
       become: true
       async: 10
       poll: 0
