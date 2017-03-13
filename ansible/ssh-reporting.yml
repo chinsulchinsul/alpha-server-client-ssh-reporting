@@ -18,11 +18,21 @@
         - python-dev 
         - libmysqlclient-dev
         - python-pip
+    - name: Replacing my.cnf with local copy
+      copy: 
+        src: files/my.cnf
+        dest: /etc/mysql/my.cnf
 
+    - name: Setting perms
+      file: 
+        path: /usr/local/bin/Server.py
+        owner: root
+        group: root
+        mode: 0644
     - name: Start the MySQL service
       service: 
         name: mysql 
-        state: started
+        state: restarted
         enabled: true
 
     - name: update mysql root password for all root accounts
@@ -40,6 +50,8 @@
         - 127.0.0.1
         - ::1
         - localhost 
+        - "{{ groups['client'] }}"
+        - "{{ ansible_play_batch }}"
 
     - name: Installing python MySQL connector
       pip: 
@@ -69,6 +81,16 @@
 - hosts: client
   become: true
   tasks:
+    - name: Install necessary packages
+      apt: name={{ item }} update_cache=yes cache_valid_time=36000 state=present
+      with_items:
+        - python-pip
+    - name: Installing python MySQL connector
+      pip: 
+        name: "{{ item }}"
+      with_items:
+        - mysql-connector
+
     - name: Copying python file to server
       copy: 
         src: ../{{ item }} 
@@ -76,6 +98,7 @@
       with_items:
         - Client.py
         - Reporter.py
+        - Server.py
 
     - name: Making file executable
       file: 

@@ -59,13 +59,15 @@ def update_database(node_name,attempt_count):
     print "Checking if %s exist in the database" %node_name
     query = 'SELECT COUNT(*) FROM %s.%s WHERE NodeName = "%s"' %(db_name,db_table,node_name)
     response = db_execute(connection,query,True)
-
-    if response is None:
+    for row in response:
+        host_exist = row[0]
+        break
+    if host_exist == '0':
         print "Inserting data data."
         query = 'INSERT INTO %s.%s (NodeName, AttemptCount) VALUES ("%s", %d);' %(db_name, db_table, node_name,attempt_count)
         db_execute(connection,query)
     else:
-        print "Inserting data data."
+        print "Updating data data."
         query = 'UPDATE %s.%s SET AttemptCount = AttemptCount+%d WHERE NodeName="%s";' %(db_name, db_table, attempt_count, node_name)
         db_execute(connection,query)
     print "Closing database connection."

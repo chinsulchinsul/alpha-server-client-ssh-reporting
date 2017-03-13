@@ -3,7 +3,9 @@ import time
 import re
 import socket
 import sys
-server = "127.0.0.1"
+import os
+
+server = "35.154.187.227"
 port = 8888
 auth_log = '/var/log/auth.log'
 
@@ -27,10 +29,27 @@ def report(host,port,attempt_count):
     except socket.error, msg:
         print "Socket closed %s" % str(msg)
     s.close()
-
-if __name__ == '__main__':
+    
+def main():
     logfile = open(auth_log,"r")
     loglines = follow(logfile)
     for line in loglines:
-        if re.match('.*sshd.*Failed.*',line) is not None:
+        if re.match('.*sshd.*?(Failed|Connection\sclosed).*',line) is not None:
             report(server, port, '1')
+
+if __name__ == '__main__':
+    pid = str(os.getpid())
+    pidfile = "/tmp/mydaemon.pid"
+    if os.path.isfile(pidfile):
+        print "%s already exists, exiting" % pidfile
+        sys.exit(0)
+    file(pidfile, 'w').write(pid)
+    try:
+        main()
+    finally:
+        os.unlink(pidfile)
+
+
+
+
+
