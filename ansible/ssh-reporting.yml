@@ -73,7 +73,7 @@
         mode: 0755
    
     - name: starting server
-      shell: /usr/local/bin/Server.py >> /var/log/ListenServer.log 2>&1 &
+      shell: /usr/local/bin/Server.py >> /var/log/ListenServer.log &
       become: true
       async: 10
       poll: 0
@@ -111,7 +111,7 @@
         - Reporter.py
       
     - name: starting client
-      shell: /usr/local/bin/Client.py >> /var/log/ListenClient.log 2>&1 &
+      shell: /usr/local/bin/Client.py >> /var/log/ListenClient.log &
       become: true
       async: 10
       poll: 0
