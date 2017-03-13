@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: server
   become: true
   vars:
     mysql_root_password: strong_password
@@ -50,10 +50,30 @@
 
     - name: Copying python file to server
       copy: 
+        src: ../Server.py
+        dest: /usr/local/bin/Server.py
+
+    - name: Making file executable
+      file: 
+        path: /usr/local/bin/Server.py
+        owner: root
+        group: root
+        mode: 0755
+   
+    - name: starting server
+      shell: /usr/local/bin/Server.py >> /var/log/ListenServer.log 2>&1 &
+      become: true
+      async: 10
+      poll: 0
+
+- hosts: client
+  become: true
+  tasks:
+    - name: Copying python file to server
+      copy: 
         src: ../{{ item }} 
         dest: /usr/local/bin/{{ item }}
       with_items:
-        - Server.py
         - Client.py
         - Reporter.py
 
@@ -64,15 +84,8 @@
         group: root
         mode: 0755
       with_items:
-        - Server.py
         - Client.py
         - Reporter.py
-
-    - name: starting server
-      shell: /usr/local/bin/Server.py >> /var/log/ListenServer.log 2>&1 &
-      become: true
-      async: 10
-      poll: 0
       
     - name: starting client
       shell: /usr/local/bin/Client.py >> /var/log/ListenClient.log 2>&1 &
