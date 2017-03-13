@@ -62,7 +62,7 @@ def update_database(node_name,attempt_count):
     for row in response:
         host_exist = row[0]
         break
-    if host_exist == '0':
+    if host_exist == 0:
         print "Inserting data data."
         query = 'INSERT INTO %s.%s (NodeName, AttemptCount) VALUES ("%s", %d);' %(db_name, db_table, node_name,attempt_count)
         db_execute(connection,query)
