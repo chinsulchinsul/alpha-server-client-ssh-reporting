@@ -7,7 +7,7 @@ def main():
     db_user = 'root'
     db_password = 'strong_password'
     db_name = 'ssh_access_reports'
-    db_host = '127.0.0.1'
+    db_host = '35.154.187.227'
     db_table = 'report'
 
 
@@ -19,9 +19,9 @@ def main():
     response = Server.db_execute(connection,query,True)
     print " --------------------------------"
     print "| Metrics for ssh log-in attempts|"
-    print "|                                |"
+    print "|--------------------------------|"
     for row in response:
-        print "| * %s had %d attempt     |" %(row[1],row[2])
+        print "| * %s had %d attempt" %(row[1],row[2])
 
     print " --------------------------------"
 

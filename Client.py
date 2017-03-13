@@ -29,12 +29,12 @@ def report(host,port,attempt_count):
     except socket.error, msg:
         print "Socket closed %s" % str(msg)
     s.close()
-    
+
 def main():
     logfile = open(auth_log,"r")
     loglines = follow(logfile)
     for line in loglines:
-        if re.match('.*sshd.*?(Failed|Connection\sclosed).*',line) is not None:
+        if re.match('.*sshd.*?(Failed|Connection\sclosed|Accepted).*',line) is not None:
             report(server, port, '1')
 
 if __name__ == '__main__':
