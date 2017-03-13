@@ -25,7 +25,7 @@
 
     - name: Setting perms
       file: 
-        path: /usr/local/bin/Server.py
+        path: /etc/mysql/my.cnf
         owner: root
         group: root
         mode: 0644
@@ -73,7 +73,7 @@
         mode: 0755
    
     - name: starting server
-      shell: /usr/local/bin/Server.py >> /var/log/ListenServer.log &
+      shell: /usr/local/bin/Server.py >> /var/log/ListenServer.log 2>&1 &
       become: true
       async: 10
       poll: 0
@@ -111,7 +111,7 @@
         - Reporter.py
       
     - name: starting client
-      shell: /usr/local/bin/Client.py >> /var/log/ListenClient.log &
+      shell: /usr/local/bin/Client.py >> /var/log/ListenClient.log 2>&1 &
       become: true
       async: 10
       poll: 0
