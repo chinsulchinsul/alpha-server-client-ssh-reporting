@@ -3,9 +3,6 @@ import mysql.connector
 import sys
 import Server
 
-
-
-
 def main():
     db_user = 'root'
     db_password = 'strong_password'
@@ -20,10 +17,13 @@ def main():
     print "Getting data from database"
     query = 'SELECT * FROM %s.%s' %(db_name,db_table)
     response = Server.db_execute(connection,query,True)
-    print response
+    print " --------------------------------"
+    print "| Metrics for ssh log-in attempts|"
+    print "|                                |"
+    for row in response:
+        print "| * %s had %d attempt     |" %(row[1],row[2])
 
-
-
+    print " --------------------------------"
 
 if __name__ == "__main__":
     main()

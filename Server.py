@@ -13,8 +13,6 @@ def initiate_db_connection(user_name, password, host_name):
         return cnx
     except mysql.connector.Error as err:
         print "MySQL connection error %s" %str(err)
-    
-
 
 def close_db_connection(cnx):
     try:
@@ -26,11 +24,10 @@ def close_db_connection(cnx):
 
 def db_execute(cnx,sql,select=False):
     try:
-        print sql
         cursor = cnx.cursor(buffered=True)
         cursor.execute(sql)
         if select:
-            response = cursor.fetchone()
+            response = cursor.fetchall()
             print "Select query executed successfully.\n"
             return response
         else:
@@ -110,12 +107,5 @@ def main():
             break
     s.close()
     
-
-
-
-
-
-
-
 if __name__ == "__main__":
     main()
